@@ -10,5 +10,5 @@ setup(
     author_email='me@mattjackson.eu',
     packages=find_packages(),
     install_requires=['colorama'],
-    entry_points=[],
+    entry_points={},
 )
