@@ -9,6 +9,6 @@ setup(
     author='Matt Jackson',
     author_email='me@mattjackson.eu',
     packages=find_packages(),
-    install_requires=['colorama'],
+    install_requires=['colorama', 'nose',],
     entry_points={},
 )
