@@ -6,7 +6,6 @@ from colorama import Fore, Back, Style
 from wordsmush.word_lookup import words
 
 
-
 class WordsmushGame(object):
 
     def __init__(self, player1, player2, board_width=5, board_height=5):
@@ -85,6 +84,11 @@ class WordsmushGame(object):
         else:
             raise ValueError("Word is not playable")
 
+    def get_points(self, player):
+        return sum(1 for tile in self.tiles if tile.owner == player)
+
+    def is_game_over(self):
+        return all(tile.owner for tile in self.tiles)
 
     def calculate_protected(self):
         """Calculates the protected status of all tiles on the board"""
@@ -93,8 +97,8 @@ class WordsmushGame(object):
         tile_owned = lambda t, p: t.status in (WordsmushTile.TAKEN, WordsmushTile.PROTECTED) and t.owner == p
         def tile_surrounded(tile):
             if ((not has_tile(tile.tile_above) or tile_owned(tile.tile_above(), tile.owner)) and
-               (not has_tile(tile.tile_below) or tile_owned(tile.tile_above(), tile.owner)) and
-               (not has_tile(tile.tile_left) or tile_owned(tile.tile_above(), tile.owner)) and
+               (not has_tile(tile.tile_below) or tile_owned(tile.tile_below(), tile.owner)) and
+               (not has_tile(tile.tile_left) or tile_owned(tile.tile_left(), tile.owner)) and
                (not has_tile(tile.tile_right) or tile_owned(tile.tile_right(), tile.owner))):
                     return True
 
@@ -113,7 +117,7 @@ class WordsmushGame(object):
     def is_playable_word(self, word):
         """Returns whether or not the word is playable.
         This is simply if the word or a superstring of word has been played before."""
-        return not any(played_word.startswith(word.word) for played_word in self.played_words)
+        return not any(played_word.startswith(word.word) for played_word in self.words_played)
 
 class WordsmushTile(object):
 
@@ -165,9 +169,9 @@ class WordsmushTile(object):
 
 class WordsmushWord(object):
     
-    def __init__(self, game, tiles=[]):
+    def __init__(self, game, tiles=None):
         self.game = game
-        self.tiles = tiles
+        self.tiles = tiles or []
 
     def add_tile(self, tile, position=None):
         """Add a tile to the word, optionally with a specific position.
@@ -179,18 +183,16 @@ class WordsmushWord(object):
         if tile in self.tiles:
             self.tiles.remove(tile)
 
-        if not position:
+        if position is None:
             self.tiles.append((tile))
         else:
             self.tiles.insert(position, tile)
+
+    def remove_tile(self, tile):
+        self.tiles.remove(tile)
 
     @property
     def word(self):
         return ''.join(tile.letter for tile in self.tiles)
         
-
-class WordsmushPlayer(object):
-    
-    def __init__(self):
-        self.score = 0
 
