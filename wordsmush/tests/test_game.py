@@ -253,3 +253,44 @@ class TestWordsmushWord(unittest.TestCase):
         word.remove_tile(self.game.get_tile(4,3))
         self.assertEqual(word.word, 'aro')
 
+    def test_remove_tile_at_position(self):
+        word = WordsmushWord(self.game)
+
+        word.add_tile(self.game.get_tile(2,0))
+        word.add_tile(self.game.get_tile(0,0))
+        word.add_tile(self.game.get_tile(2,3))
+        word.add_tile(self.game.get_tile(4,3))
+        word.add_tile(self.game.get_tile(4,2))
+        word.add_tile(self.game.get_tile(3,2))
+
+        self.assertEqual(word.word, 'carton')
+
+        # remove from beginning
+        word.remove_tile_at_position(0)
+        self.assertEqual(word.word, 'arton')
+
+        # remove from end
+        word.remove_tile_at_position(4)
+        self.assertEqual(word.word, 'arto')
+
+        # remove from middle 
+        word.remove_tile_at_position(2)
+        self.assertEqual(word.word, 'aro')
+
+
+    def test_clear_tiles(self):
+        word = WordsmushWord(self.game)
+
+        word.clear_tiles()
+        self.assertEqual(word.word, '')
+
+        word.add_tile(self.game.get_tile(2,0))
+        word.add_tile(self.game.get_tile(0,0))
+        word.add_tile(self.game.get_tile(1,0))
+
+        self.assertEqual(word.word, 'cab')
+
+        word.clear_tiles()
+        self.assertEqual(word.word, '')
+
+

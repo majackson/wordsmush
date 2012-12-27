@@ -191,6 +191,12 @@ class WordsmushWord(object):
     def remove_tile(self, tile):
         self.tiles.remove(tile)
 
+    def remove_tile_at_position(self, position):
+        del self.tiles[position]
+
+    def clear_tiles(self):
+        self.tiles = []
+
     @property
     def word(self):
         return ''.join(tile.letter for tile in self.tiles)

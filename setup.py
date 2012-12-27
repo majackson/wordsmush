@@ -10,5 +10,7 @@ setup(
     author_email='me@mattjackson.eu',
     packages=find_packages(),
     install_requires=['colorama', 'nose',],
-    entry_points={},
+    entry_points={'console_scripts': [ 
+            'wordsmush-cli = wordsmush.driver:command_line'
+        ]}
 )
