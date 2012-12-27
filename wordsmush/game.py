@@ -37,18 +37,20 @@ class WordsmushGame(object):
 
     def format_pretty(self):
         """Returns a colourised representation of the play state of the board"""
-        COLOR_MAPPING = {
-            (WordsmushTile.UNTAKEN, None): Fore.BLACK + Back.WHITE + Style.NORMAL,
-            (WordsmushTile.TAKEN, self.player1): Fore.CYAN + Back.BLUE + Style.DIM, 
-            (WordsmushTile.TAKEN, self.player2): Fore.RED + Back.YELLOW + Style.DIM,
-            (WordsmushTile.PROTECTED, self.player1): Fore.BLUE + Back.BLUE + Style.BRIGHT,
-            (WordsmushTile.PROTECTED, self.player2): Fore.RED + Back.RED + Style.BRIGHT,
+        COLOUR_MAPPING = {
+            (WordsmushTile.UNTAKEN, None): WordsmushTile.UNTAKEN_STYLE,
+            (WordsmushTile.TAKEN, self.player1): WordsmushTile.PLAYER1_TAKEN_STYLE, 
+            (WordsmushTile.TAKEN, self.player2): WordsmushTile.PLAYER2_TAKEN_STYLE,
+            (WordsmushTile.PROTECTED, self.player1): WordsmushTile.PLAYER1_PROTECTED_STYLE,
+            (WordsmushTile.PROTECTED, self.player2): WordsmushTile.PLAYER2_PROTECTED_STYLE,
         }
 
+        get_format = (lambda t: WordsmushTile.SELECTED_STYLE if t.selected 
+                                else COLOUR_MAPPING[t.status, t.owner])
         format_string = ''
         for tile_row in self.board:
             for tile in tile_row:
-                format_string += COLOR_MAPPING[tile.status, tile.owner] + (' %s ' % tile.letter.upper())
+                format_string += get_format(tile) + (' %s ' % tile.letter.upper())
             format_string += Fore.RESET + Back.RESET + Style.RESET_ALL + '\n'
 
         return format_string
@@ -78,6 +80,8 @@ class WordsmushGame(object):
                 if tile.status != WordsmushTile.PROTECTED:
                     tile.status = WordsmushTile.TAKEN
                     tile.owner = player
+
+                tile.selected = False
 
             self.calculate_protected()
             self.words_played.append(word.word)
@@ -126,6 +130,14 @@ class WordsmushTile(object):
     TAKEN = 1
     PROTECTED = 2
 
+    # tile status colours and styles
+    UNTAKEN_STYLE = Fore.BLACK + Back.WHITE + Style.NORMAL
+    PLAYER1_TAKEN_STYLE = Fore.CYAN + Back.BLUE + Style.DIM
+    PLAYER2_TAKEN_STYLE = Fore.RED + Back.YELLOW + Style.DIM
+    PLAYER1_PROTECTED_STYLE = Fore.BLUE + Back.BLUE + Style.BRIGHT
+    PLAYER2_PROTECTED_STYLE = Fore.RED + Back.RED + Style.BRIGHT
+    SELECTED_STYLE = Fore.BLACK + Back.BLACK + Style.DIM
+
     def __init__(self, game, x, y, letter):
         self.game = game
         self.x = x
@@ -133,6 +145,19 @@ class WordsmushTile(object):
         self.letter = letter
         self.status = self.UNTAKEN
         self.owner = None
+        self.selected = False
+
+    def __repr__(self):
+        COLOUR_MAPPING = {
+            (self.UNTAKEN, None): self.UNTAKEN_STYLE,
+            (self.TAKEN, self.game.player1): self.PLAYER1_TAKEN_STYLE, 
+            (self.TAKEN, self.game.player2): self.PLAYER2_TAKEN_STYLE,
+            (self.PROTECTED, self.game.player1): self.PLAYER1_PROTECTED_STYLE,
+            (self.PROTECTED, self.game.player2): self.PLAYER2_PROTECTED_STYLE,
+        }
+
+        reset_string = Fore.RESET + Back.RESET + Style.RESET_ALL
+        return COLOUR_MAPPING[self.status, self.owner] + (' %s ' % self.letter.upper()) + reset_string
 
     def tile_above(self):
         """Return the tile above this tile on the board.
@@ -173,6 +198,9 @@ class WordsmushWord(object):
         self.game = game
         self.tiles = tiles or []
 
+    def __repr__(self):
+        return ''.join(repr(tile) for tile in self.tiles)
+
     def add_tile(self, tile, position=None):
         """Add a tile to the word, optionally with a specific position.
         This method may also be move a tile already in play. 
@@ -188,13 +216,20 @@ class WordsmushWord(object):
         else:
             self.tiles.insert(position, tile)
 
+        tile.selected = True
+
     def remove_tile(self, tile):
         self.tiles.remove(tile)
+        tile.selected = False
 
     def remove_tile_at_position(self, position):
-        del self.tiles[position]
+        tile = self.tiles[position]
+        self.remove_tile(tile)
 
     def clear_tiles(self):
+        for tile in self.tiles:
+            tile.selected = False
+
         self.tiles = []
 
     @property

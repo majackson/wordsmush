@@ -53,7 +53,7 @@ class CommandLineWordsmushGameDriver(WordsmushGameDriver):
         while not move_complete:
             move_text = ''
             print(self.game)
-            print(word.word.upper())
+            print(word)
 
             while not move_rx.match(move_text):
                 move_text = self.loop_input("Enter move or 'help'")
@@ -118,3 +118,4 @@ class CommandLineWordsmushGameDriver(WordsmushGameDriver):
 def command_line():
     """Entry point to start a new command line game"""
     CommandLineWordsmushGameDriver()
+
