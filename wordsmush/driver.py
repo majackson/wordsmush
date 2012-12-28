@@ -71,7 +71,7 @@ class CommandLineWordsmushGameDriver(WordsmushGameDriver):
             elif move_text.startswith('rem'):
                 rem_tile = int(move_text[3:])
                 word.remove_tile_at_position(rem_tile-1)
-            else:
+            else:  # add tile
                 tile_move = tile_rx.match(move_text)
                 if tile_move:
                     tile_move_dict = tile_move.groupdict()
@@ -79,9 +79,12 @@ class CommandLineWordsmushGameDriver(WordsmushGameDriver):
                     tile_y = int(tile_move_dict.get('y'))
                     tile_pos = tile_move_dict.get('pos')
                     tile_pos = int(tile_pos)-1 if tile_pos else None
-                    game_tile = self.game.get_tile(tile_x-1, tile_y-1)
 
-                    word.add_tile(game_tile, tile_pos)
+                    try:
+                        game_tile = self.game.get_tile(tile_x-1, tile_y-1)
+                        word.add_tile(game_tile, tile_pos)
+                    except IndexError:
+                        print("No such tile.")
 
         print("%s played %s" % (player.name, word.word.upper()))
 

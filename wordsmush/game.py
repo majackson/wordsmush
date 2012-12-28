@@ -15,8 +15,8 @@ class WordsmushGame(object):
         :param board_width: The width of the play board (optional, default is 5) 
         :param board_height: the height of the play board (optional, default is 5)
         """
-        self.board_width = 5
-        self.board_height = 5
+        self.board_width = board_width
+        self.board_height = board_height
 
         self.player1 = player1
         self.player2 = player2
@@ -33,24 +33,14 @@ class WordsmushGame(object):
             yield tile
 
     def __repr__(self):
-        return self.format_pretty()
-
-    def format_pretty(self):
         """Returns a colourised representation of the play state of the board"""
-        COLOUR_MAPPING = {
-            (WordsmushTile.UNTAKEN, None): WordsmushTile.UNTAKEN_STYLE,
-            (WordsmushTile.TAKEN, self.player1): WordsmushTile.PLAYER1_TAKEN_STYLE, 
-            (WordsmushTile.TAKEN, self.player2): WordsmushTile.PLAYER2_TAKEN_STYLE,
-            (WordsmushTile.PROTECTED, self.player1): WordsmushTile.PLAYER1_PROTECTED_STYLE,
-            (WordsmushTile.PROTECTED, self.player2): WordsmushTile.PLAYER2_PROTECTED_STYLE,
-        }
 
-        get_format = (lambda t: WordsmushTile.SELECTED_STYLE if t.selected 
-                                else COLOUR_MAPPING[t.status, t.owner])
+        get_repr = (lambda t: WordsmushTile.SELECTED_STYLE + (' %s ' % tile.letter.upper())
+                        if t.selected else repr(t))
         format_string = ''
         for tile_row in self.board:
             for tile in tile_row:
-                format_string += get_format(tile) + (' %s ' % tile.letter.upper())
+                format_string += get_repr(tile)
             format_string += Fore.RESET + Back.RESET + Style.RESET_ALL + '\n'
 
         return format_string
