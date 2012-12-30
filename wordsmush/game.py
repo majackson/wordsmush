@@ -3,7 +3,7 @@ from operator import add
 
 from colorama import Fore, Back, Style
 
-from wordsmush.word_lookup import words
+from wordsmush.word_list import words
 
 
 class WordsmushGame(object):
