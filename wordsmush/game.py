@@ -21,6 +21,9 @@ class WordsmushGame(object):
         self.player1 = player1
         self.player2 = player2
 
+        # scores are not attached to players so players may participate in multiple games
+        self.scores = {player1: 0, player2: 0}
+
         random_letter = lambda: chr(randint(ord('a'), ord('z')))
         self.board = [[ WordsmushTile(self, n, m, random_letter())
                             for n in range(board_width)] for m in range(board_height)]
@@ -75,6 +78,7 @@ class WordsmushGame(object):
 
             self.calculate_protected()
             self.words_played.append(word.word)
+            self.scores.update({player: self.get_points(player)})
         else:
             raise ValueError("Word is not playable")
 

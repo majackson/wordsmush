@@ -3,10 +3,9 @@ from itertools import cycle
 
 from mock import Mock
 
-from wordsmush.game import (WordsmushGame, WordsmushTile, WordsmushWord)
-from wordsmush.player import WordsmushPlayer
-
+from wordsmush.game import WordsmushTile, WordsmushWord
 from wordsmush.tests import test_utils
+
 
 class TestWordsmushGame(unittest.TestCase):
     

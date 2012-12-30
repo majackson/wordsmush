@@ -1,16 +1,15 @@
 from itertools import cycle
-import re
 
-from wordsmush.game import WordsmushGame, WordsmushWord
-from wordsmush.player import WordsmushPlayer
+from wordsmush.game import WordsmushGame
+from wordsmush.player import CommandLineWordsmushPlayer
+from wordsmush.ai import WordsmushAIPlayer
+from wordsmush.cli import loop_input
 
 
 class WordsmushGameDriver(object):
 
     def __init__(self):
-        player1_name, player2_name = self.get_player_names()
-        self.player1 = WordsmushPlayer(name=player1_name)
-        self.player2 = WordsmushPlayer(name=player2_name)
+        self.player1, self.player2 = self.get_players()
 
         self.game = WordsmushGame(self.player1, self.player2)
         turn_player = cycle([self.player1, self.player2])
@@ -19,16 +18,31 @@ class WordsmushGameDriver(object):
             player = next(turn_player)
             self.get_turn(player)
 
-        if self.player1.score == self.player2.score:
+        if self.game.scores[self.player1] == self.game.scores[self.player2]:
             self.game_draw()
         else:
-            winner, loser = (self.player1, self.player2 
-                            if self.player1.score > self.player2.score 
-                            else self.player2, self.player1)
+            (winner, winner_score), (loser, loser_score) = \
+                sorted(self.game.scores.items(), key=lambda i: -i[1])
+
             self.game_over(winner, loser)
+
+    def get_turn(self, player):
+        player.take_turn(self.game)
 
 
 class CommandLineWordsmushGameDriver(WordsmushGameDriver):
+
+    def get_players(self):
+        player1_name = loop_input("Enter name for Player 1, or 'ai' for computer opponent")
+        player2_name = loop_input("Enter name for Player 2, or 'ai' for computer opponent")
+
+        player1 = (CommandLineWordsmushPlayer(player1_name) 
+            if player1_name != 'ai' else WordsmushAIPlayer())
+
+        player2 = (CommandLineWordsmushPlayer(player2_name) 
+            if player2_name != 'ai' else WordsmushAIPlayer())
+
+        return player1, player2
 
     def __init__(self):
         print("Starting new Wordsmush game...")
@@ -36,87 +50,21 @@ class CommandLineWordsmushGameDriver(WordsmushGameDriver):
 
     def game_draw(self):
         print(self.game)
-        print("Both players have %d points. The game is a draw!" % self.player1.score)
+        print("Both players have %d points. The game is a draw!" % 
+            self.game.scores[self.player1])
 
     def game_over(self, winner, loser):
         print(self.game)
-        print("%s wins by %d-%d!" % (winner.name, winner.score, loser.score))
+        print("%s wins by %d-%d!" % 
+            (winner.name, self.game.scores[winner], self.game.scores[loser]))
 
     def get_turn(self, player):
         print("%s's turn" % player.name)
-        word = WordsmushWord(self.game)
-
-        move_complete = False
-        move_rx = re.compile('^(help|play|rem|clear|\d,\d)', re.IGNORECASE)
-        tile_rx = re.compile('^(?P<x>\d),(?P<y>\d)( (?P<pos>\d))?', re.IGNORECASE)
-
-        while not move_complete:
-            move_text = ''
-            print(self.game)
-            print(word)
-
-            while not move_rx.match(move_text):
-                move_text = self.loop_input("Enter move or 'help'")
-            
-            if move_text == 'play':
-                if self.game.is_playable(word):
-                    self.game.play(player, word)
-                    move_complete = True
-                else:
-                    print("'%s' is not a playable word." % word.word.upper())
-            elif move_text == 'help':
-                self.print_help()
-            elif move_text == 'clear':
-                word.clear_tiles()
-            elif move_text.startswith('rem'):
-                rem_tile = int(move_text[3:])
-                word.remove_tile_at_position(rem_tile-1)
-            else:  # add tile
-                tile_move = tile_rx.match(move_text)
-                if tile_move:
-                    tile_move_dict = tile_move.groupdict()
-                    tile_x = int(tile_move_dict.get('x'))
-                    tile_y = int(tile_move_dict.get('y'))
-                    tile_pos = tile_move_dict.get('pos')
-                    tile_pos = int(tile_pos)-1 if tile_pos else None
-
-                    try:
-                        game_tile = self.game.get_tile(tile_x-1, tile_y-1)
-                        word.add_tile(game_tile, tile_pos)
-                    except IndexError:
-                        print("No such tile.")
+        word = player.take_turn(self.game)
 
         print("%s played %s" % (player.name, word.word.upper()))
-
-        self.player1.score = self.game.get_points(self.player1)
-        self.player2.score = self.game.get_points(self.player2)
-        print("Scores:\n%s - %d\n%s - %d" % (self.player1.name, self.player1.score,
-                                           self.player2.name, self.player2.score)) 
-
-    def print_help(self):
-        print("""
-        Wordsmush Playing Help:
-        To add a tile to the end of word, type the co-ordinates of the tile separated by a comma - e.g. '3,2'.
-        To add a tile to a specific position in a word, type the co-ordinates followed by a position - e.g. '3,2 2'.
-        To remove a tile from a specific position, type 'rem' followed by the tiles position - e.g. 'rem 2'.
-        To remove all tiles from the current word, type 'clear'.
-        To play the currently selected tiles, type 'play'.
-        To view this help text, type 'help'.
-        """)
-
-    def get_player_names(self):
-        player1_name = self.loop_input('Enter name for Player 1')
-        player2_name = self.loop_input('Enter name for Player 2')
-        return player1_name, player2_name
-    
-    @staticmethod
-    def loop_input(message):
-        """Repeats input until user inputs valid data"""
-        user_input = ''
-        while not user_input.strip():
-            user_input = raw_input('%s: ' % message)
-
-        return user_input
+        print("Scores:\n%s - %d\n%s - %d" % (self.player1.name, self.game.scores[self.player1],
+                                           self.player2.name, self.game.scores[self.player2])) 
 
 def command_line():
     """Entry point to start a new command line game"""
