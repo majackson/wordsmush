@@ -1,5 +1,6 @@
 from random import randint
 from operator import add
+from collections import defaultdict
 
 from colorama import Fore, Back, Style
 
@@ -34,6 +35,15 @@ class WordsmushGame(object):
         """Iterator for all tiles on the board"""
         for tile in reduce(add, self.board):
             yield tile
+
+    def tiles_by_letter(self):
+        """Returns a dict of each letter in the game mapped to a list of tiles
+        of that letter"""
+        tiles_by_letter = defaultdict(list)
+        for tile in self.tiles:
+            tiles_by_letter[tile.letter].append(tile)
+
+        return tiles_by_letter
 
     def __repr__(self):
         """Returns a colourised representation of the play state of the board"""
