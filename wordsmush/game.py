@@ -1,5 +1,6 @@
 from random import randint
 from operator import add
+from collections import defaultdict
 
 from colorama import Fore, Back, Style
 
@@ -21,6 +22,9 @@ class WordsmushGame(object):
         self.player1 = player1
         self.player2 = player2
 
+        # scores are not attached to players so players may participate in multiple games
+        self.scores = {player1: 0, player2: 0}
+
         random_letter = lambda: chr(randint(ord('a'), ord('z')))
         self.board = [[ WordsmushTile(self, n, m, random_letter())
                             for n in range(board_width)] for m in range(board_height)]
@@ -31,6 +35,15 @@ class WordsmushGame(object):
         """Iterator for all tiles on the board"""
         for tile in reduce(add, self.board):
             yield tile
+
+    def tiles_by_letter(self):
+        """Returns a dict of each letter in the game mapped to a list of tiles
+        of that letter"""
+        tiles_by_letter = defaultdict(list)
+        for tile in self.tiles:
+            tiles_by_letter[tile.letter].append(tile)
+
+        return tiles_by_letter
 
     def __repr__(self):
         """Returns a colourised representation of the play state of the board"""
@@ -75,6 +88,7 @@ class WordsmushGame(object):
 
             self.calculate_protected()
             self.words_played.append(word.word)
+            self.scores.update({player: self.get_points(player)})
         else:
             raise ValueError("Word is not playable")
 
