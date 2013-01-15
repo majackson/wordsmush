@@ -4,13 +4,13 @@ from itertools import cycle
 from mock import Mock
 
 from wordsmush.game import WordsmushTile, WordsmushWord
-from wordsmush.tests import test_utils
+from wordsmush import game_utils
 
 
 class TestWordsmushGame(unittest.TestCase):
     
     def setUp(self):
-        self.game = test_utils.get_alpha_board() 
+        self.game = game_utils.get_alpha_board() 
 
     def test_get_tile(self):
         a_tile = self.game.get_tile(0,0)
@@ -41,7 +41,7 @@ class TestWordsmushGame(unittest.TestCase):
         pass
 
     def test_calculate_protected(self):
-        self.game = test_utils.get_board(['f', 'r', 'a', 'b', 'c',
+        self.game = game_utils.get_board(['f', 'r', 'a', 'b', 'c',
                                           'n', 'a', 'h', 'i', 'j',
                                           't', 'i', 'm', 'n', 'o',
                                           'c', 's', 'g', 'x', 'q',
@@ -113,7 +113,7 @@ class TestWordsmushGame(unittest.TestCase):
         self.assertFalse(self.game.is_game_over())
 
         # test no tiles taken
-        self.game = test_utils.get_alpha_board()
+        self.game = game_utils.get_alpha_board()
         self.assertFalse(self.game.is_game_over())
         
 
@@ -161,7 +161,7 @@ class TestWordsmushGame(unittest.TestCase):
 class TestWordsmushTile(unittest.TestCase):
 
     def setUp(self):
-        self.game = test_utils.get_alpha_board() 
+        self.game = game_utils.get_alpha_board() 
 
     def test_tile_above(self):
         a_tile = self.game.get_tile(0,0)   # a
@@ -207,7 +207,7 @@ class TestWordsmushTile(unittest.TestCase):
 class TestWordsmushWord(unittest.TestCase):
 
     def setUp(self):
-        self.game = test_utils.get_alpha_board() 
+        self.game = game_utils.get_alpha_board() 
 
     def test_add_tile(self):
         word = WordsmushWord(self.game)

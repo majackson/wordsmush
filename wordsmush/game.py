@@ -1,4 +1,3 @@
-from random import randint
 from operator import add
 from collections import defaultdict
 
@@ -16,6 +15,8 @@ class WordsmushGame(object):
         :param board_width: The width of the play board (optional, default is 5) 
         :param board_height: the height of the play board (optional, default is 5)
         """
+        from wordsmush import game_utils  # avoid circular dep
+
         self.board_width = board_width
         self.board_height = board_height
 
@@ -25,8 +26,7 @@ class WordsmushGame(object):
         # scores are not attached to players so players may participate in multiple games
         self.scores = {player1: 0, player2: 0}
 
-        random_letter = lambda: chr(randint(ord('a'), ord('z')))
-        self.board = [[ WordsmushTile(self, n, m, random_letter())
+        self.board = [[ WordsmushTile(self, n, m, game_utils.random_letter_freq())
                             for n in range(board_width)] for m in range(board_height)]
         self.words_played = []
 
