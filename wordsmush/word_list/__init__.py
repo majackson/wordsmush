@@ -2,8 +2,9 @@
 memory and looks through it."""
 
 from pkg_resources import resource_stream
+from contextlib import closing
 
-WORDS_FILE = 'scrabble_us'
+WORDS_FILE = 'data/scrabble_us.words'
 
-with resource_stream(__name__, WORDS_FILE) as f:
+with closing(resource_stream(__name__, WORDS_FILE)) as f:
     words = {word.strip().lower(): True for word in f.readlines()}

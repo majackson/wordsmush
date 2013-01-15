@@ -31,7 +31,7 @@ class WordsmushAIPlayer(WordsmushPlayer):
 
     def get_best_word(self, game):
         word_str = next(word for word in self.playable_words[game] 
-                        if word not in game.words_played)
+                        if game.is_playable_word(word))
 
         tiles_by_letter = game.tiles_by_letter()
         word = WordsmushWord(game)

@@ -66,16 +66,16 @@ class WordsmushGame(object):
         return self.board[y][x]
 
     def is_playable(self, word):
-        """Returns whether a word is playable, based on if it is a dict word
-        and if it has not been played before"""
-        return self.is_a_word(word) and self.is_playable_word(word)
+        """Returns whether a WordsmushWord is playable, 
+        based on if it is a dict word and if it has not been played before"""
+        return self.is_a_word(word.word) and self.is_playable_word(word.word)
 
     def play(self, player, word):
         """Play a single turn.
         :param player: the player playing the turn.
         :param word: the instance of WordsmushWord representing the turn."""
 
-        if self.is_a_word(word) and self.is_playable_word(word): 
+        if self.is_playable(word): 
 
             # give possession of each new letter to player, 
             # if the tiles are unprotected
@@ -119,13 +119,13 @@ class WordsmushGame(object):
         
 
     def is_a_word(self, word):
-        """Returns whether or not the word is a valid dictionary word"""
-        return word.word in words
+        """Returns whether or not a given word (str) is a valid dictionary word"""
+        return word in words
 
     def is_playable_word(self, word):
         """Returns whether or not the word is playable.
         This is simply if the word or a superstring of word has been played before."""
-        return not any(played_word.startswith(word.word) for played_word in self.words_played)
+        return not any(played_word.startswith(word) for played_word in self.words_played)
 
 class WordsmushTile(object):
 

@@ -58,7 +58,7 @@ class CommandLineWordsmushPlayer(WordsmushPlayer):
         return word
 
     @staticmethod
-    def print_help(self):
+    def print_help():
         print("""
         Wordsmush Playing Help:
         To add a tile to the end of word, type the co-ordinates of the tile separated by a comma - e.g. '3,2'.

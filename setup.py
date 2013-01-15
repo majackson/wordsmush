@@ -9,9 +9,9 @@ setup(
     author='Matt Jackson',
     author_email='me@mattjackson.eu',
     packages=find_packages(),
-    install_requires=['colorama', 'nose',],
+    install_requires=['colorama', 'nose', 'mock',],
     package_data = {
-        'word_list': ['scrabble_us']
+        'wordsmush.word_list': ['data/*.words']
     },
     entry_points={'console_scripts': [ 
             'wordsmush-cli = wordsmush.driver:command_line'
