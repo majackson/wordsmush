@@ -68,7 +68,9 @@ class WordsmushGame(object):
     def is_playable(self, word):
         """Returns whether a WordsmushWord is playable, 
         based on if it is a dict word and if it has not been played before"""
-        return self.is_a_word(word.word) and self.is_playable_word(word.word)
+        return (self.is_a_word(word.word) and 
+                self.is_playable_word(word.word) and 
+                len(word.word) > 2)
 
     def play(self, player, word):
         """Play a single turn.

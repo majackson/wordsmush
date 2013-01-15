@@ -14,6 +14,7 @@ setup(
         'wordsmush.word_list': ['data/*.words']
     },
     entry_points={'console_scripts': [ 
-            'wordsmush-cli = wordsmush.driver:command_line'
+            'wordsmush-cli = wordsmush.driver:command_line',
+            'wordsmush-solve = wordsmush.cli:solve_from_letters_entry_point',
         ]}
 )
