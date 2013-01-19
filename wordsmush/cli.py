@@ -20,7 +20,7 @@ def solve_from_letters(letters):
     for length, words in words_by_len:
         if length > 2:
             print "%d letter words: " % length
-            print ", ".join(words)
+            print (", ".join(words)).upper()
 
 def solve_from_letters_entry_point():
     p = argparse.ArgumentParser()
