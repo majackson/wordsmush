@@ -119,6 +119,19 @@ class WordsmushGame(object):
                 else:
                     tile.status = WordsmushTile.TAKEN
         
+    def potential_score(self, player, word):
+        """Return the score that would be awarded to players if they
+        played a given word, assuming that word is valid"""
+        other_player = next(p for p in self.score if p != player)
+        potential_score = self.score.copy()
+        for tile in word.tiles:
+            if tile.status == WordsmushTile.TAKEN and WordsmushTile.owner == other_player:
+                potential_score[player] += 1
+                potential_score[other_player] -= 1
+            elif tile.status == WordsmushTile.UNTAKEN:
+                potential_score[player] += 1
+
+        return potential_score
 
     def is_a_word(self, word):
         """Returns whether or not a given word (str) is a valid dictionary word"""
