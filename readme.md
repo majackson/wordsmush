@@ -23,4 +23,6 @@ For each turn, type one of the following:
 * To remove a tile from a specific position, type 'rem' followed by the tiles position - e.g. 'rem 2'.
 * To remove all tiles from the current word, type 'clear'.
 * To play the currently selected tiles, type 'play'.
+* To pass the current turn, type 'pass'.
+* To resign the game, type 'resign'.
 * To view this help text, type 'help'.

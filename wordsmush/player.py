@@ -1,7 +1,7 @@
 import uuid
 import re
 
-from wordsmush.game import WordsmushWord
+from wordsmush.game import WordsmushTurn
 from wordsmush.cli import loop_input
 
 
@@ -13,33 +13,39 @@ class WordsmushPlayer(object):
 class CommandLineWordsmushPlayer(WordsmushPlayer):
 
     def take_turn(self, game):
-        word = WordsmushWord(game)
+        turn = WordsmushTurn(game)
 
         move_complete = False
-        move_rx = re.compile('^(help|play|rem|clear|\d,\d)', re.IGNORECASE)
+        move_rx = re.compile('^(help|play|pass|resign|rem|clear|\d,\d)', re.IGNORECASE)
         tile_rx = re.compile('^(?P<x>\d),(?P<y>\d)( (?P<pos>\d))?', re.IGNORECASE)
 
         while not move_complete:
             move_text = ''
             print(game)
-            print(word)
+            print(turn)
 
             while not move_rx.match(move_text):
                 move_text = loop_input("Enter move or 'help'")
             
             if move_text == 'play':
-                if game.is_playable(word):
-                    game.play(self, word)
+                if game.is_playable(turn):
+                    game.play(self, turn)
                     move_complete = True
                 else:
-                    print("'%s' is not a playable word." % word.word.upper())
+                    print("'%s' is not a playable word." % turn.word.upper())
             elif move_text == 'help':
                 self.print_help()
             elif move_text == 'clear':
-                word.clear_tiles()
+                turn.clear_tiles()
+            elif move_text == 'pass':
+                move_complete = True
+            elif move_text == 'resign':
+                turn.resign = True
+                game.play(self, turn)
+                move_complete = True
             elif move_text.startswith('rem'):
                 rem_tile = int(move_text[3:])
-                word.remove_tile_at_position(rem_tile-1)
+                turn.remove_tile_at_position(rem_tile-1)
             else:  # add tile
                 tile_move = tile_rx.match(move_text)
                 if tile_move:
@@ -51,11 +57,11 @@ class CommandLineWordsmushPlayer(WordsmushPlayer):
 
                     try:
                         game_tile = game.get_tile(tile_x-1, tile_y-1)
-                        word.add_tile(game_tile, tile_pos)
+                        turn.add_tile(game_tile, tile_pos)
                     except IndexError:
                         print("No such tile.")
 
-        return word
+        return turn
 
     @staticmethod
     def print_help():
@@ -66,6 +72,8 @@ class CommandLineWordsmushPlayer(WordsmushPlayer):
         To remove a tile from a specific position, type 'rem' followed by the tiles position - e.g. 'rem 2'.
         To remove all tiles from the current word, type 'clear'.
         To play the currently selected tiles, type 'play'.
+        To pass the current turn, type 'pass'.
+        To resign the game, type 'resign'.
         To view this help text, type 'help'.
         """)
 

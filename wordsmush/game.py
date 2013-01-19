@@ -22,13 +22,14 @@ class WordsmushGame(object):
 
         self.player1 = player1
         self.player2 = player2
+        self.resigned = None
 
         # scores are not attached to players so players may participate in multiple games
         self.scores = {player1: 0, player2: 0}
 
         self.board = [[ WordsmushTile(self, n, m, game_utils.random_letter_freq())
                             for n in range(board_width)] for m in range(board_height)]
-        self.words_played = []
+        self.words_played = {}
 
     @property
     def tiles(self):
@@ -65,23 +66,25 @@ class WordsmushGame(object):
 
         return self.board[y][x]
 
-    def is_playable(self, word):
-        """Returns whether a WordsmushWord is playable, 
+    def is_playable(self, turn):
+        """Returns whether a WordsmushTurn is playable, 
         based on if it is a dict word and if it has not been played before"""
-        return (self.is_a_word(word.word) and 
-                self.is_playable_word(word.word) and 
-                len(word.word) > 2)
+        return (self.is_a_word(turn.word) and 
+                self.is_playable_word(turn.word) and 
+                len(turn.word) > 2)
 
-    def play(self, player, word):
+    def play(self, player, turn):
         """Play a single turn.
         :param player: the player playing the turn.
-        :param word: the instance of WordsmushWord representing the turn."""
+        :param turn: the instance of WordsmushTurn representing the turn."""
 
-        if self.is_playable(word): 
+        if turn.resign: 
+            self.resigned = player
+        elif self.is_playable(turn): 
 
             # give possession of each new letter to player, 
             # if the tiles are unprotected
-            for tile in word.tiles:
+            for tile in turn.tiles:
                 if tile.status != WordsmushTile.PROTECTED:
                     tile.status = WordsmushTile.TAKEN
                     tile.owner = player
@@ -89,7 +92,7 @@ class WordsmushGame(object):
                 tile.selected = False
 
             self.calculate_protected()
-            self.words_played.append(word.word)
+            self.words_played.update({turn.word: True})
             self.scores.update({player: self.get_points(player)})
         else:
             raise ValueError("Word is not playable")
@@ -98,7 +101,7 @@ class WordsmushGame(object):
         return sum(1 for tile in self.tiles if tile.owner == player)
 
     def is_game_over(self):
-        return all(tile.owner for tile in self.tiles)
+        return bool(self.resigned) or all(tile.owner for tile in self.tiles)
 
     def calculate_protected(self):
         """Calculates the protected status of all tiles on the board"""
@@ -211,11 +214,12 @@ class WordsmushTile(object):
             return self.game.get_tile(self.x+1, self.y)
 
 
-class WordsmushWord(object):
+class WordsmushTurn(object):
     
     def __init__(self, game, tiles=None):
         self.game = game
         self.tiles = tiles or []
+        self.resign = False
 
     def __repr__(self):
         return ''.join(repr(tile) for tile in self.tiles)

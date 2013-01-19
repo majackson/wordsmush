@@ -3,7 +3,7 @@ from itertools import cycle
 
 from mock import Mock
 
-from wordsmush.game import WordsmushTile, WordsmushWord
+from wordsmush.game import WordsmushTile, WordsmushTurn
 from wordsmush import game_utils
 
 
@@ -46,7 +46,7 @@ class TestWordsmushGame(unittest.TestCase):
                                           't', 'i', 'm', 'n', 'o',
                                           'c', 's', 'g', 'x', 'q',
                                           'u', 'v', 'w', 'y', 'z'])
-        word = WordsmushWord(self.game)
+        word = WordsmushTurn(self.game)
         word.add_tile(self.game.get_tile(0,0))
         word.add_tile(self.game.get_tile(1,0))
         word.add_tile(self.game.get_tile(1,1))
@@ -67,7 +67,7 @@ class TestWordsmushGame(unittest.TestCase):
         self.assertTrue(protected_tile2.status == WordsmushTile.PROTECTED)
 
         # now test that a second play will not capture a protected tile
-        word2 = WordsmushWord(self.game)
+        word2 = WordsmushTurn(self.game)
         word2.add_tile(self.game.get_tile(0,0))
         word2.add_tile(self.game.get_tile(1,1))
         word2.add_tile(self.game.get_tile(0,1))
@@ -118,7 +118,7 @@ class TestWordsmushGame(unittest.TestCase):
         
 
     def test_get_points(self):
-        word_cat = WordsmushWord(self.game)
+        word_cat = WordsmushTurn(self.game)
         word_cat.add_tile(self.game.get_tile(2,0))
         word_cat.add_tile(self.game.get_tile(0,0))
         word_cat.add_tile(self.game.get_tile(4,3))
@@ -127,7 +127,7 @@ class TestWordsmushGame(unittest.TestCase):
         self.assertTrue(self.game.get_points(self.game.player1) == 3)
         self.assertTrue(self.game.get_points(self.game.player2) == 0)
 
-        word_bat = WordsmushWord(self.game)
+        word_bat = WordsmushTurn(self.game)
         word_bat.add_tile(self.game.get_tile(1,0))
         word_bat.add_tile(self.game.get_tile(0,0))
         word_bat.add_tile(self.game.get_tile(4,3))
@@ -136,7 +136,7 @@ class TestWordsmushGame(unittest.TestCase):
         self.assertTrue(self.game.get_points(self.game.player1) == 1)
         self.assertTrue(self.game.get_points(self.game.player2) == 3)
 
-        word_fabric = WordsmushWord(self.game)
+        word_fabric = WordsmushTurn(self.game)
         word_fabric.add_tile(self.game.get_tile(0,1))
         word_fabric.add_tile(self.game.get_tile(0,0))
         word_fabric.add_tile(self.game.get_tile(1,0))
@@ -148,7 +148,7 @@ class TestWordsmushGame(unittest.TestCase):
         self.assertTrue(self.game.get_points(self.game.player1) == 6)
         self.assertTrue(self.game.get_points(self.game.player2) == 1)
 
-        word_cab = WordsmushWord(self.game)
+        word_cab = WordsmushTurn(self.game)
         word_cab.add_tile(self.game.get_tile(2,0))
         word_cab.add_tile(self.game.get_tile(0,0))
         word_cab.add_tile(self.game.get_tile(1,0))
@@ -204,13 +204,13 @@ class TestWordsmushTile(unittest.TestCase):
         self.assertEqual(y_tile.tile_left(), self.game.get_tile(3,4))
 
 
-class TestWordsmushWord(unittest.TestCase):
+class TestWordsmushTurn(unittest.TestCase):
 
     def setUp(self):
         self.game = game_utils.get_alpha_board() 
 
     def test_add_tile(self):
-        word = WordsmushWord(self.game)
+        word = WordsmushTurn(self.game)
 
         word.add_tile(self.game.get_tile(0,0))
         word.add_tile(self.game.get_tile(1,0))
@@ -229,7 +229,7 @@ class TestWordsmushWord(unittest.TestCase):
         self.assertEqual(word.word, 'back')
 
     def test_remove_tile(self):
-        word = WordsmushWord(self.game)
+        word = WordsmushTurn(self.game)
 
         word.add_tile(self.game.get_tile(2,0))
         word.add_tile(self.game.get_tile(0,0))
@@ -253,7 +253,7 @@ class TestWordsmushWord(unittest.TestCase):
         self.assertEqual(word.word, 'aro')
 
     def test_remove_tile_at_position(self):
-        word = WordsmushWord(self.game)
+        word = WordsmushTurn(self.game)
 
         word.add_tile(self.game.get_tile(2,0))
         word.add_tile(self.game.get_tile(0,0))
@@ -278,7 +278,7 @@ class TestWordsmushWord(unittest.TestCase):
 
 
     def test_clear_tiles(self):
-        word = WordsmushWord(self.game)
+        word = WordsmushTurn(self.game)
 
         word.clear_tiles()
         self.assertEqual(word.word, '')

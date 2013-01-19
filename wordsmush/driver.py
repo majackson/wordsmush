@@ -18,7 +18,11 @@ class WordsmushGameDriver(object):
             player = next(turn_player)
             self.get_turn(player)
 
-        if self.game.scores[self.player1] == self.game.scores[self.player2]:
+        if self.game.resigned:
+            winner = self.player1 if self.game.resigned == self.player2 else self.player2
+            loser = self.game.resigned
+            self.game_over(winner, loser)
+        elif self.game.scores[self.player1] == self.game.scores[self.player2]:
             self.game_draw()
         else:
             (winner, winner_score), (loser, loser_score) = \
@@ -60,11 +64,12 @@ class CommandLineWordsmushGameDriver(WordsmushGameDriver):
 
     def get_turn(self, player):
         print("%s's turn" % player.name)
-        word = player.take_turn(self.game)
+        turn = player.take_turn(self.game)
 
-        print("%s played %s" % (player.name, word.word.upper()))
-        print("Scores:\n%s - %d\n%s - %d" % (self.player1.name, self.game.scores[self.player1],
-                                           self.player2.name, self.game.scores[self.player2])) 
+        if not turn.resign:
+            print("%s played %s" % (player.name, turn.word.upper()))
+            print("Scores:\n%s - %d\n%s - %d" % (self.player1.name, self.game.scores[self.player1],
+                                               self.player2.name, self.game.scores[self.player2])) 
 
 def command_line():
     """Entry point to start a new command line game"""

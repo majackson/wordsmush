@@ -2,7 +2,7 @@ from itertools import imap, izip
 from collections import Counter
 
 from wordsmush.player import WordsmushPlayer
-from wordsmush.game import WordsmushWord
+from wordsmush.game import WordsmushTurn
 from wordsmush import word_list
 
 
@@ -30,16 +30,21 @@ class WordsmushAIPlayer(WordsmushPlayer):
                             if is_match(letter_count)), key=len, reverse=True)
 
     def get_best_word(self, game):
-        word_str = next(word for word in self.playable_words[game] 
-                        if game.is_playable_word(word))
+        turn = WordsmushTurn(game)
 
-        tiles_by_letter = game.tiles_by_letter()
-        word = WordsmushWord(game)
-        for word_char in word_str:
-            word.add_tile(next(tile for tile in tiles_by_letter[word_char]
-                                    if tile not in word.tiles))
+        try:
+            word_str = next(word for word in self.playable_words[game] 
+                            if game.is_playable_word(word) and len(word) > 2)
+            self.playable_words[game].remove(word_str)
 
-        return word
+            tiles_by_letter = game.tiles_by_letter()
+            for word_char in word_str:
+                turn.add_tile(next(tile for tile in tiles_by_letter[word_char]
+                                        if tile not in turn.tiles))
+        except StopIteration:  # no more words left to play!
+            turn.resign = True
+
+        return turn
 
     def take_turn(self, game):
         if not self.playable_words.get(game):
